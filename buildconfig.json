@@ -50,10 +50,15 @@
             "fileName": "internal.js",
             "source": [
               "./client/**/*.js",
-              "!./client/routes/**/*.js"
+              "!./client/routes/**/*.js",
+              "!./client/configs/**/*.js"
             ],
             "routes": {
               "source": "./client/routes/**/*.js",
+              "destination": "./client/app.js"
+            },
+            "configs": {
+              "source": "./client/configs/**/*.js",
               "destination": "./client/app.js"
             },
             "destination": "./dist/client/scripts"

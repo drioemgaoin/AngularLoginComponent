@@ -8,7 +8,7 @@ var buildHelper = require('../buildHelper')();
 module.exports = function(gulp, plugins, config) {
   return function() {
 
-    var injectRoutes = require('./inject-routes')(gulp, plugins, config);
+    var injectAngularConfig = require('./inject-angular-configuration')(gulp, plugins);
 
     var source = buildHelper.getSources(gulp, config.source, function(root) {
       return root;
@@ -18,7 +18,8 @@ module.exports = function(gulp, plugins, config) {
 
     return source
       .pipe(appFilter)
-      .pipe(plugins.if(config.routes, injectRoutes()))
+      .pipe(plugins.if(config.configs, injectAngularConfig('configs', config.configs)))
+      .pipe(plugins.if(config.routes, injectAngularConfig('routes', config.routes)))
       .pipe(appFilter.restore)
       .pipe(plugins.sort(buildHelper.sort(/components/, false)))
       .pipe(plugins.mainDedupe({ same: false, fullPath: false }))
