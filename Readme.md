@@ -15,14 +15,17 @@ There are 3 ways to build and run the project:
 - ```gulp default --debug```: build the project with debugging. Use it when you want to check which files are used during each step of the build process.
 
 # Installation inside AngularMicroServicesBoilerplate
-This component can be integrated in the angular boilerplate called AngularMicroServicesBoilerplate. For that, you need to follow the following steps:
-- Create a subdirectory in the /source/components/ directory. It is recommended to choose the name of the component you want to use for a better understanding.
+After running the gulp task add (see the README of AngularMicroServicesBoilerplate), you need to add the resolve part in the home.js file of the boilerplate.
+```
+$stateProvider
+  .state('home', {
+    ...
+    resolve: {
+      skipIfLoggedIn: routeProvider.loginRequired
+    }
+  });
+```
 
-For example, you can create the directory source/components/login if you want to use the login component.
-
-- Copy the client/server directory, package.json, bower.json and buildconfig.json in the /source/components/xxxx directory. Create a subdirectoy
-
-From there, you need to follow the 3 steps mentioned in the Installation paragraph at the root of the boilerplate.
 
 # Credits
 [Sahat Yalkabov](https://github.com/sahat/) for [Satellizer](https://github.com/sahat/satellizer)
