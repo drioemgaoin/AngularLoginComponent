@@ -1,0 +1,29 @@
+// -----------------------------------------------------------------------------
+// This file contains all @font-face declarations, if any.
+// -----------------------------------------------------------------------------
+.has-error {
+  justify-content: center;
+
+  > input {
+    border: 1px solid #a94442;
+  }
+
+  > span.form-control-feedback {
+    @include icon('times');
+
+    align-self: flex-end;
+    position: absolute;
+    padding-right: 10px;
+    padding-bottom: 28px;
+    color: #a94442;
+
+    &:before {
+      content: "\f00d";
+    }
+  }
+
+  > .help-block {
+    color: #a94442;
+    padding: 10px 0px;
+  }
+}

@@ -101,7 +101,7 @@
             "destination": "./dist/client/css",
             "bowerOverrides": {
               "font-awesome": {
-                "main": "./scss/font-awesome.scss"
+                "main": "./css/font-awesome.css"
               }
             }
           }

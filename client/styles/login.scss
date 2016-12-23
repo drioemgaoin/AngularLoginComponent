@@ -15,6 +15,7 @@
   'base/base',
   'base/fonts',
   'base/typography',
+  'base/validation',
   'base/helpers';
 
 // 4. Layout-related sections
@@ -25,13 +26,14 @@
 // 5. Components
 @import
   'components/button',
-  'components/login',
-  'components/navbar',
-  'components/signup';
+  'components/strengthindicator',
+  'components/navbar';
 
 // 6. Page-specific styles
 @import
-  'pages/home';
+  'pages/home',
+  'pages/signup',
+  'pages/login';
 
 // 7. Themes
 @import
