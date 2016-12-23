@@ -28,7 +28,7 @@ var facebookController = function(userRepository, tokenHelper, errorProvider, ap
 
         if (req.header('Authorization')) {
 
-          userRepository.getByQuery({ facebook: profile.Id }, function(result, value) {
+          userRepository.getByQuery({ facebook: profile.id }, function(result, value) {
             if (!result) {
               var error = value.code ? value : { code: 500, message: value };
               return res.status(error.code).send({ message: error.message });
@@ -54,7 +54,7 @@ var facebookController = function(userRepository, tokenHelper, errorProvider, ap
 
         } else {
 
-          userRepository.getByQuery({ facebook: profile.Id }, function(result, value) {
+          userRepository.getByQuery({ facebook: profile.id }, function(result, value) {
             if (!result) {
               var error = value.code ? value : { code: 500, message: value };
               return res.status(error.code).send({ message: error.message });
@@ -64,7 +64,7 @@ var facebookController = function(userRepository, tokenHelper, errorProvider, ap
               return res.send({ token: tokenHelper.createJWT(value) });
             }
 
-            userRepository.addFacebookAccount(profile.id, profile.name, function(result, value) {
+            userRepository.addFacebookAccount(profile.id, profile.name, profile.email, function(result, value) {
               if(!result) {
                 var error = value.code ? value : { code: 500, message: value };
                 return res.status(error.code).send({ message: error.message });

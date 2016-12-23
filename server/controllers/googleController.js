@@ -27,7 +27,7 @@ var googleController = function(userRepository, tokenHelper, errorProvider, app)
 
         if (req.header('Authorization')) {
 
-          userRepository.getByQuery({ google: profile.Id }, function(result, value) {
+          userRepository.getByQuery({ google: profile.sub }, function(result, value) {
             if (!result) {
               var error = value.code ? value : { code: 500, message: value };
               return res.status(error.code).send({ message: error.message });
@@ -41,7 +41,7 @@ var googleController = function(userRepository, tokenHelper, errorProvider, app)
             var token = req.header('Authorization').split(' ')[1];
             var payload = tokenHelper.decode(token);
 
-            userRepository.updateGoogleAccount(payload.sub, profile.id, profile.name, function(result, value) {
+            userRepository.updateGoogleAccount(payload.sub, profile.sub, profile.name, function(result, value) {
               if (!result) {
                 var error = value.code ? value : { code: 500, message: value };
                 return res.status(error.code).send({ message: error.message });
@@ -53,7 +53,7 @@ var googleController = function(userRepository, tokenHelper, errorProvider, app)
 
         } else {
 
-          userRepository.getByQuery({ google: profile.Id }, function(result, value) {
+          userRepository.getByQuery({ google: profile.sub }, function(result, value) {
             if (!result) {
               var error = value.code ? value : { code: 500, message: value };
               return res.status(error.code).send({ message: error.message });
@@ -63,7 +63,7 @@ var googleController = function(userRepository, tokenHelper, errorProvider, app)
               return res.send({ token: tokenHelper.createJWT(value) });
             }
 
-            userRepository.addGoogleAccount(profile.id, profile.name, function(result, value) {
+            userRepository.addGoogleAccount(profile.sub, profile.name, profile.email, function(result, value) {
               if(!result) {
                 var error = value.code ? value : { code: 500, message: value };
                 return res.status(error.code).send({ message: error.message });

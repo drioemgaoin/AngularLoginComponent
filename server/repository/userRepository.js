@@ -22,14 +22,15 @@ var userRepository = function(tokenHelper, errorProvider) {
           return cb(false, err.message);
         }
 
-        cb(true);
+        cb(true, user);
       });
     });
   }
 
-  function addAccount(id, name, setAccount, cb) {
+  function addAccount(id, name, email, setAccount, cb) {
     var user = new User({
-      displayName: name
+      displayName: name,
+      email: email
     });
 
     setAccount(user, id);
@@ -39,7 +40,7 @@ var userRepository = function(tokenHelper, errorProvider) {
         return cb(false, err.message);
       }
 
-      cb(true);
+      cb(true, user);
     });
   }
 
@@ -64,20 +65,20 @@ var userRepository = function(tokenHelper, errorProvider) {
       });
     },
 
-    addFacebookAccount: function(id, name, cb) {
+    addFacebookAccount: function(id, name, email, cb) {
       var setAccount = function(user, id) {
         user.facebook = id;
       };
 
-      addAccount(id, name, setAccount, cb);
+      addAccount(id, name, email, setAccount, cb);
     },
 
-    addGoogleAccount: function(id, name, cb) {
+    addGoogleAccount: function(id, name, email, cb) {
       var setAccount = function(user, id) {
         user.google = id;
       };
 
-      addAccount(id, name, setAccount, cb);
+      addAccount(id, name, email, setAccount, cb);
     },
 
     updateFacebookAccount: function(sub, id, name, cb) {
