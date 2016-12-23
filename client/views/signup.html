@@ -11,8 +11,6 @@
     <div ng-class="{ 'has-error' : signupForm.email.$invalid && signupForm.email.$dirty }">
       <input type="email" name="email" ng-model="user.email" placeholder="Email" required>
       <span class="form-control-feedback"></span>
-      <div ng-repeat="signupForm.email.$error">
-      </div>
       <div class="help-block" ng-if="signupForm.email.$dirty" ng-messages="signupForm.email.$error">
         <div ng-message="required">Your email address is required.</div>
         <div ng-message="email">Your email address is invalid.</div>

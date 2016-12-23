@@ -26,6 +26,24 @@ $stateProvider
   });
 ```
 
+And add $stateProvider and routeProvider as parameters of the function
+```
+module.exports = function($stateProvider, routeProvider) {
+  ...
+};
+```
+
+Finally, you need to have, for your home.js file, something like
+```
+module.exports = function($stateProvider, routeProvider) {
+  .state('home', {
+    ...
+    resolve: {
+      skipIfLoggedIn: routeProvider.loginRequired
+    }
+  });
+};
+```
 
 # Credits
 [Sahat Yalkabov](https://github.com/sahat/) for [Satellizer](https://github.com/sahat/satellizer)
