@@ -15,6 +15,9 @@ var tokenHelper = function() {
       };
 
       return jwt.encode(payload, config.TOKEN_SECRET);
+    },
+    decode: function(token) {
+      return jwt.decode(token, config.TOKEN_SECRET);
     }
   };
 };

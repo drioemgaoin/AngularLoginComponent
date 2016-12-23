@@ -3,7 +3,7 @@
 var config = require('../config');
 var request = require('request');
 
-var googleController = function(tokenHelper, app) {
+var googleController = function(userRepository, tokenHelper, errorProvider, app) {
 
   app.post('/auth/google', function(req, res) {
     var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
@@ -25,14 +25,62 @@ var googleController = function(tokenHelper, app) {
           return res.status(500).send({message: profile.error.message});
         }
 
-        var token = tokenHelper.createJWT(profile.id);
-        res.send({ token: token });
+        if (req.header('Authorization')) {
+
+          userRepository.getByQuery({ google: profile.Id }, function(result, value) {
+            if (!result) {
+              var error = value.code ? value : { code: 500, message: value };
+              return res.status(error.code).send({ message: error.message });
+            }
+
+            if (value) {
+              return res.status(errorProvider.existingFacebookAccount.code)
+                .send({ message: errorProvider.existingFacebookAccount.message });
+            }
+
+            var token = req.header('Authorization').split(' ')[1];
+            var payload = tokenHelper.decode(token);
+
+            userRepository.updateGoogleAccount(payload.sub, profile.id, profile.name, function(result, value) {
+              if (!result) {
+                var error = value.code ? value : { code: 500, message: value };
+                return res.status(error.code).send({ message: error.message });
+              }
+
+              return res.send({ token: tokenHelper.createJWT(value) });
+            });
+          });
+
+        } else {
+
+          userRepository.getByQuery({ google: profile.Id }, function(result, value) {
+            if (!result) {
+              var error = value.code ? value : { code: 500, message: value };
+              return res.status(error.code).send({ message: error.message });
+            }
+
+            if (value) {
+              return res.send({ token: tokenHelper.createJWT(value) });
+            }
+
+            userRepository.addGoogleAccount(profile.id, profile.name, function(result, value) {
+              if(!result) {
+                var error = value.code ? value : { code: 500, message: value };
+                return res.status(error.code).send({ message: error.message });
+              }
+
+              return res.send({ token: tokenHelper.createJWT(value) });
+            });
+
+          });
+
+        }
       });
     });
   });
 
 };
 
-googleController.$inject = ["tokenHelper"];
+googleController.$inject = ["userRepository", "tokenHelper", "errorProvider"];
 
 module.exports = googleController;

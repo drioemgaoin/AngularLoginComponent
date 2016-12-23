@@ -2,48 +2,118 @@
 
 var User = require('../models/user');
 
-var userRepository = function(tokenHelper) {
-  return {
-    get: function(email, password, cb) {
-      User.findOne({ email: email }, '+password', function(err, user) {
-        if (!user) {
-          return cb({ code: 401, message: 'Invalid email and/or password' });
+var userRepository = function(tokenHelper, errorProvider) {
+
+  function updateAccount(sub, id, name, setAccount, cb) {
+    User.findById(sub, function(err, user) {
+      if (err) {
+        return cb(false, err.message);
+      }
+
+      if (!user) {
+        return cb(false, errorProvider.userNotFound);
+      }
+
+      setAccount(user, id);
+      user.displayName = user.displayName || name;
+
+      user.save(function(err) {
+        if (err) {
+          return cb(false, err.message);
         }
 
-        user.comparePassword(password, function(err, isMatch) {
-          if (!isMatch) {
-            return cb({ code: 401, message: 'Invalid email and/or password' });
-          }
+        cb(true);
+      });
+    });
+  }
 
-          cb({ token: tokenHelper.createJWT(user) });
-        });
+  function addAccount(id, name, setAccount, cb) {
+    var user = new User({
+      displayName: name
+    });
+
+    setAccount(user, id);
+
+    user.save(function(err) {
+      if (err) {
+        return cb(false, err.message);
+      }
+
+      cb(true);
+    });
+  }
+
+  return {
+    getByQuery: function(query, cb, select) {
+      User.findOne(query, select, function(err, user) {
+        if (err) {
+          return cb(false, err.message);
+        }
+
+        cb(true, user);
       });
     },
 
-    add: function(displayName, email, password, cb) {
-      User.findOne({ email: email }, function(err, existingUser) {
-        if (existingUser) {
-          return cb({ code: 409, message: 'Email is already taken' });
+    getById: function(id, cb) {
+      User.findById(id, function(err, user) {
+        if (err) {
+          return cb(false, err.message);
         }
 
-        var user = new User({
-          displayName: displayName,
-          email: email,
-          password: password
-        });
+        cb(true, user);
+      });
+    },
 
-        user.save(function(err, result) {
-          if (err) {
-            return cb({ code: 500, message: err.message });
-          }
+    addFacebookAccount: function(id, name, cb) {
+      var setAccount = function(user, id) {
+        user.facebook = id;
+      };
 
-          cb({ token: tokenHelper.createJWT(result) });
-        });
+      addAccount(id, name, setAccount, cb);
+    },
+
+    addGoogleAccount: function(id, name, cb) {
+      var setAccount = function(user, id) {
+        user.google = id;
+      };
+
+      addAccount(id, name, setAccount, cb);
+    },
+
+    updateFacebookAccount: function(sub, id, name, cb) {
+      var setAccount = function(user, id) {
+        user.facebook = id;
+      };
+
+      updateAccount(sub, id, name, setAccount, cb);
+    },
+
+    updateGoogleAccount: function(sub, id, name, cb) {
+      var setAccount = function(user, id) {
+        user.google = id;
+      };
+
+      updateAccount(sub, id, name, setAccount, cb);
+    },
+
+    add: function(displayName, email, password, cb) {
+      var user = new User({
+        displayName: displayName,
+        email: email,
+        password: password
+      });
+
+      user.save(function(err) {
+        if (err) {
+          return cb(false, err.message);
+        }
+
+        cb(true);
       });
     }
   };
 };
 
-userRepository.$inject = ["tokenHelper"];
+userRepository.$inject = ["tokenHelper", "errorProvider"];
 
 module.exports = userRepository;

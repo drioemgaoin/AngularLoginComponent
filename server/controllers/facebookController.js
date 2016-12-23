@@ -3,7 +3,7 @@
 var config = require('../config');
 var request = require('request');
 
-var facebookController = function(tokenHelper, app) {
+var facebookController = function(userRepository, tokenHelper, errorProvider, app) {
 
   app.post('/auth/facebook', function(req, res) {
     var fields = ['id', 'email', 'first_name', 'last_name', 'link', 'name'];
@@ -26,14 +26,62 @@ var facebookController = function(tokenHelper, app) {
           return res.status(500).send({ message: profile.error.message });
         }
 
-        var token = tokenHelper.createJWT(profile.id);
-        res.send({ token: token });
+        if (req.header('Authorization')) {
+
+          userRepository.getByQuery({ facebook: profile.Id }, function(result, value) {
+            if (!result) {
+              var error = value.code ? value : { code: 500, message: value };
+              return res.status(error.code).send({ message: error.message });
+            }
+
+            if (value) {
+              return res.status(errorProvider.existingFacebookAccount.code)
+                .send({ message: errorProvider.existingFacebookAccount.message });
+            }
+
+            var token = req.header('Authorization').split(' ')[1];
+            var payload = tokenHelper.decode(token);
+
+            userRepository.updateFacebookAccount(payload.sub, profile.id, profile.name, function(result, value) {
+              if (!result) {
+                var error = value.code ? value : { code: 500, message: value };
+                return res.status(error.code).send({ message: error.message });
+              }
+
+              return res.send({ token: tokenHelper.createJWT(value) });
+            });
+          });
+
+        } else {
+
+          userRepository.getByQuery({ facebook: profile.Id }, function(result, value) {
+            if (!result) {
+              var error = value.code ? value : { code: 500, message: value };
+              return res.status(error.code).send({ message: error.message });
+            }
+
+            if (value) {
+              return res.send({ token: tokenHelper.createJWT(value) });
+            }
+
+            userRepository.addFacebookAccount(profile.id, profile.name, function(result, value) {
+              if(!result) {
+                var error = value.code ? value : { code: 500, message: value };
+                return res.status(error.code).send({ message: error.message });
+              }
+
+              return res.send({ token: tokenHelper.createJWT(value) });
+            });
+
+          });
+
+        }
       });
     });
   });
 
 };
 
-facebookController.$inject = ["tokenHelper"];
+facebookController.$inject = ["userRepository", "tokenHelper", "errorProvider"];
 
 module.exports = facebookController;
